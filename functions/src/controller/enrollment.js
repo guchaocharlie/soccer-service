@@ -1,8 +1,9 @@
 const request = require('request');
 const messages = require('../util/messages');
 const random = require('../util/random').random;
+const functions = require('firebase-functions');
 
-const slackChannel = 'https://hooks.slack.com/services/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';
+const slackChannel = functions.config().slack.url;
 
 const handle = (db, currentWeek) => (req, res) => {
     const payload = JSON.parse(req.body.payload);
@@ -27,9 +28,6 @@ const enrollment = (db, currentWeek, payload, username, value) => {
             break;
         case 'taxi':
             message = messages.responseSuccessOrderTaxi;
-            break;
-        case 'taxi-back':
-            message = messages.responseSuccessOrderTaxiReturn;
             break;
     }
     request.post(

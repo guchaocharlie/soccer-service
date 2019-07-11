@@ -1,7 +1,7 @@
 const moment = require('moment');
 
 const currentWeek = moment().week();
-const thisFriday = moment().day("Friday");
+const thisFriday = moment().day("Friday").format('YYYY-MM-dd');
 
 const generalEnrollmentNotification = {
     "text": `Heyyyy everyone, week ${currentWeek}'s (${thisFriday}) soccer enrolment has started!`,
@@ -26,13 +26,6 @@ const generalEnrollmentNotification = {
                     "type": "button",
                     "style": "danger",
                     "value": "taxi",
-                },
-                {
-                    "name": "enrollment",
-                    "text": "I need taxi back!",
-                    "style": "danger",
-                    "type": "button",
-                    "value": "taxi-back",
                 }
             ]
         },
@@ -50,12 +43,6 @@ const responseSuccessEnroll = {
 
 const responseSuccessOrderTaxi = {
     "text": `Taxi :taxi: is confirmed for week ${currentWeek}!`,
-    "response_type": "ephemeral",
-    "replace_original": false
-};
-
-const responseSuccessOrderTaxiReturn = {
-    "text": `Taxi return :taxi: is confirmed for week ${currentWeek}!`,
     "response_type": "ephemeral",
     "replace_original": false
 };
@@ -137,7 +124,6 @@ module.exports = {
     generalEnrollmentNotification,
     responseSuccessEnroll,
     responseSuccessOrderTaxi,
-    responseSuccessOrderTaxiReturn,
     responseEnrollmentClosed,
     responseGetRoster,
 };
