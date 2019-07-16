@@ -2,44 +2,57 @@ const request = require('request');
 const messages = require('../util/messages');
 const random = require('../util/random').random;
 const functions = require('firebase-functions');
+const moment = require('moment');
 
 const slackChannel = functions.config().slack.url;
+const currentWeek = `${moment().year()}_${moment().week()}`;
 
-const handle = (db, currentWeek) => (req, res) => {
+const handle = (db) => (req, res) => {
     const payload = JSON.parse(req.body.payload);
     const username = payload.user.name;
-    const type = payload.actions[0].name;
-    const value = payload.actions[0].value;
+    const type = payload.actions[0].block_id;
+    const value = payload.actions[0].action_id;
     if (type === 'enrollment') {
-        enrollment(db, currentWeek, payload, username, value);
+        enrollment(db, payload, username, value);
     }
 };
 
-const enrollment = (db, currentWeek, payload, username, value) => {
+const enrollment = (db, payload, username, value) => {
     const enrollmentRef = db.collection(currentWeek).doc(username);
     let message = {};
     let data = {
         [value]: true,
     };
-    enrollmentRef.set(data, {merge: true});
-    switch (value) {
-        case 'play':
-            message = messages.responseSuccessEnroll;
-            break;
-        case 'taxi':
-            message = messages.responseSuccessOrderTaxi;
-            break;
-    }
-    request.post(
-        payload.response_url,
-        {
-            json: message,
-        },
-        () => {}
-    );
+    enrollmentRef.set(data, {merge: true}).then(() => {
+        switch (value) {
+            case 'play':
+                message = messages.responseSuccessEnroll;
+                break;
+            case 'taxi':
+                message = messages.responseSuccessOrderTaxi;
+                break;
+        }
+        messages.generalEnrollmentNotification(db, "true").then((messageObject) => {
+            request.post(
+                payload.response_url,
+                {
+                    json: messageObject,
+                },
+                () => {}
+            );
+        });
+
+        request.post(
+            payload.response_url,
+            {
+                json: message,
+            },
+            () => {}
+        );
+    });
 };
 
-const closeEnrollment = (db, currentWeek) => (req, res) => {
+const closeEnrollment = (db) => (req, res) => {
     const payload = JSON.parse(req.body.payload);
     const enrollmentRef = db.collection('enrollments').doc(currentWeek);
     enrollmentRef.set({
@@ -56,23 +69,26 @@ const closeEnrollment = (db, currentWeek) => (req, res) => {
 };
 
 
-const sendWeeklyNotification = (db, currentWeek) => (req, res) => {
-    request.post(
-        slackChannel,
-        {
-            json: messages.generalEnrollmentNotification,
-        },
-        function (error, response, body) {
-            if (!error && response.statusCode === 200) {
-                res.send(body);
-            } else {
-                res.send(error);
+const sendWeeklyNotification = (db) => (req, res) => {
+    messages.generalEnrollmentNotification(db).then((message) => {
+        request.post(
+            slackChannel,
+            {
+                json: message,
+            },
+            (error, response, body) => {
+                if (!error && response.statusCode === 200) {
+                    res.send(body);
+                } else {
+                    console.log(error);
+                    res.send(error);
+                }
             }
-        }
-    );
+        );
+    });
 };
 
-const randomRoster = (db, currentWeek) => (req, res) => {
+const randomRoster = (db) => (req, res) => {
     const enrollmentRef = db.collection(currentWeek);
     let query = enrollmentRef.where('play', '==', true).get()
         .then(snapshot => {
@@ -87,7 +103,6 @@ const randomRoster = (db, currentWeek) => (req, res) => {
             });
 
             const result = random(roster);
-            console.log(result);
             request.post(
                 slackChannel,
                 {

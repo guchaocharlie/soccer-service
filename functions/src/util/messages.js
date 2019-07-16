@@ -1,38 +1,66 @@
 const moment = require('moment');
-
+const dbUtil = require('../util/checkDb');
 const currentWeek = moment().week();
-const thisFriday = moment().day("Friday").format('YYYY-MM-dd');
+const thisFriday = moment().day("Friday").format('MMMM Do YYYY');
 
-const generalEnrollmentNotification = {
-    "text": `Heyyyy everyone, week ${currentWeek}'s (${thisFriday}) soccer enrolment has started!`,
-    "attachments": [
-        {
-            "text": "Please confirm if you want to play or not",
-            "fallback": "You are unable to choose a game",
-            "callback_id": "soccer",
-            "color": "#3AA3E3",
-            "attachment_type": "default",
-            "actions": [
-                {
-                    "name": "enrollment",
-                    "text": "I want to play!",
-                    "type": "button",
-                    "style": "primary",
-                    "value": "play"
-                },
-                {
-                    "name": "enrollment",
-                    "text": "I need taxi!",
-                    "type": "button",
-                    "style": "danger",
-                    "value": "taxi",
+const generalEnrollmentNotification = async (db, needOverWrite = "false") => {
+    let enrollFigure = await dbUtil.getNumberOfEnrollment(db);
+    return {
+        "replace_original": `${needOverWrite}`,
+        "blocks": [
+            {
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": `Heyyyy everyone, week ${currentWeek}'s (${thisFriday}) soccer enrollment has started!`
                 }
-            ]
-        },
-        {
-            "type": "divider"
-        }
-    ]
+            },
+            {
+                "type": "section",
+                "text": {
+                    "type": "plain_text",
+                    "text": "Please confirm if you want to play:",
+                    "emoji": true
+                }
+            },
+            {
+                "type": "actions",
+                "block_id": "enrollment",
+                "elements": [
+                    {
+                        "type": "button",
+                        "action_id": "play",
+                        "style": "primary",
+                        "text": {
+                            "type": "plain_text",
+                            "text": "I want to play!"
+                        }
+                    },
+                    {
+                        "type": "button",
+                        "action_id": "taxi",
+                        "style": "danger",
+                        "text": {
+                            "type": "plain_text",
+                            "text": "I need taxi!"
+                        }
+                    }
+                ]
+            },
+            {
+                "type": "divider"
+            },
+            {
+                "type": "context",
+                "elements": [
+                    {
+                        "type": "mrkdwn",
+                        "text": `*Current Enrollment:* ${enrollFigure.numberOfEnrollment}, ${enrollFigure.numberOfPeopleNeedTaxi} people need taxi`
+                    }
+                ]
+            }
+        ]
+    };
 };
 
 const responseSuccessEnroll = {
@@ -102,7 +130,7 @@ const responseGetRoster = (result) => {
     if (result.array1.length > result.array2.length) {
         fields.push({
             "type": "plain_text",
-            "text": result.array1[length - 1],
+            "text": result.array1[result.array1.length - 1],
         });
     }
     return {
