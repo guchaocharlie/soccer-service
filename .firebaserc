@@ -1,5 +1,6 @@
 {
   "projects": {
-    "default": "bne-soccer-bot"
+    "default": "bne-soccer-bot",
+    "testing": "bne-soccer-bot-test"
   }
 }

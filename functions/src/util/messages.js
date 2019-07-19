@@ -107,16 +107,7 @@ const responseEnrollmentClosed = {
 };
 
 const responseGetRoster = (result) => {
-    const fields = [
-        {
-            "type": "mrkdwn",
-            "text": "*Team light*"
-        },
-        {
-            "type": "mrkdwn",
-            "text": "*Team dark*"
-        },
-    ];
+    const fields = [];
     for (let i = 0; i < result.array2.length; i++) {
         fields.push({
             "type": "plain_text",
@@ -132,6 +123,10 @@ const responseGetRoster = (result) => {
             "type": "plain_text",
             "text": result.array1[result.array1.length - 1],
         });
+        fields.push({
+            "type": "plain_text",
+            "text": " ",
+        });
     }
     return {
         "text": `Here is this week's roster:`,
@@ -142,7 +137,20 @@ const responseGetRoster = (result) => {
                     "type": "mrkdwn",
                     "text": "Here is this week's roster:"
                 },
-                "fields": fields
+                "fields": [
+                    {
+                        "type": "mrkdwn",
+                        "text": "*Team light*"
+                    },
+                    {
+                        "type": "mrkdwn",
+                        "text": "*Team dark*"
+                    },
+                ]
+            },
+            {
+                "type": "section",
+                "fields": fields,
             }
         ]
     };
