@@ -52,23 +52,6 @@ const enrollment = (db, payload, username, value) => {
     });
 };
 
-const closeEnrollment = (db) => (req, res) => {
-    const payload = JSON.parse(req.body.payload);
-    const enrollmentRef = db.collection('enrollments').doc(currentWeek);
-    enrollmentRef.set({
-        status: 'closed',
-    });
-
-    request.post(
-        payload.response_url,
-        {
-            json: messages.responseEnrollmentClosed,
-        },
-        () => {}
-    );
-};
-
-
 const sendWeeklyNotification = (db) => (req, res) => {
     messages.generalEnrollmentNotification(db).then((message) => {
         request.post(
@@ -122,6 +105,5 @@ const randomRoster = (db) => (req, res) => {
 module.exports = {
     handle,
     sendWeeklyNotification,
-    closeEnrollment,
     randomRoster,
 };

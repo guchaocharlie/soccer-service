@@ -3,10 +3,9 @@ const enrollmentController = require('./src/controller/enrollment');
 
 const admin = require('firebase-admin');
 
-admin.initializeApp(functions.config().firebase);
-const db = admin.firestore();
+const app = admin.initializeApp(functions.config().firebase, 'testing');
+const db = admin.firestore(app);
 
 exports.sendNotification = functions.https.onRequest(enrollmentController.sendWeeklyNotification(db));
 exports.handle = functions.https.onRequest(enrollmentController.handle(db));
-exports.closeEnrolment = functions.https.onRequest(enrollmentController.closeEnrollment(db));
 exports.randomRoster = functions.https.onRequest(enrollmentController.randomRoster(db));
