@@ -5,7 +5,7 @@ const functions = require('firebase-functions');
 const moment = require('moment');
 
 const slackChannel = functions.config().slack.url;
-const currentWeek = `${moment().year()}_${moment().week()}`;
+const currentWeek = () => `${moment().year()}_${moment().week()}`;
 
 const handle = (db) => (req, res) => {
     const payload = JSON.parse(req.body.payload);
@@ -18,7 +18,7 @@ const handle = (db) => (req, res) => {
 };
 
 const enrollment = (db, payload, username, value) => {
-    const enrollmentRef = db.collection(currentWeek).doc(username);
+    const enrollmentRef = db.collection(currentWeek()).doc(username);
     let message = {};
     let data = {
         [value]: true,
@@ -52,23 +52,6 @@ const enrollment = (db, payload, username, value) => {
     });
 };
 
-const closeEnrollment = (db) => (req, res) => {
-    const payload = JSON.parse(req.body.payload);
-    const enrollmentRef = db.collection('enrollments').doc(currentWeek);
-    enrollmentRef.set({
-        status: 'closed',
-    });
-
-    request.post(
-        payload.response_url,
-        {
-            json: messages.responseEnrollmentClosed,
-        },
-        () => {}
-    );
-};
-
-
 const sendWeeklyNotification = (db) => (req, res) => {
     messages.generalEnrollmentNotification(db).then((message) => {
         request.post(
@@ -89,7 +72,7 @@ const sendWeeklyNotification = (db) => (req, res) => {
 };
 
 const randomRoster = (db) => (req, res) => {
-    const enrollmentRef = db.collection(currentWeek);
+    const enrollmentRef = db.collection(currentWeek());
     let query = enrollmentRef.where('play', '==', true).get()
         .then(snapshot => {
             const roster = [];

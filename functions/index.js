@@ -8,5 +8,4 @@ const db = admin.firestore();
 
 exports.sendNotification = functions.https.onRequest(enrollmentController.sendWeeklyNotification(db));
 exports.handle = functions.https.onRequest(enrollmentController.handle(db));
-exports.closeEnrolment = functions.https.onRequest(enrollmentController.closeEnrollment(db));
 exports.randomRoster = functions.https.onRequest(enrollmentController.randomRoster(db));
