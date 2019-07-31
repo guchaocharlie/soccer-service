@@ -1,7 +1,7 @@
 const moment = require('moment');
 const dbUtil = require('../util/checkDb');
-const currentWeek = moment().week();
-const thisFriday = moment().day("Friday").format('MMMM Do YYYY');
+const currentWeek = () => moment().week();
+const thisFriday = () => moment().day("Friday").format('MMMM Do YYYY');
 
 const generalEnrollmentNotification = async (db, needOverWrite = "false") => {
     let enrollFigure = await dbUtil.getNumberOfEnrollment(db);
@@ -12,7 +12,7 @@ const generalEnrollmentNotification = async (db, needOverWrite = "false") => {
                 "type": "section",
                 "text": {
                     "type": "mrkdwn",
-                    "text": `Heyyyy everyone, week ${currentWeek}'s (${thisFriday}) soccer enrollment has started!`
+                    "text": `Heyyyy everyone, week ${currentWeek()}'s (${thisFriday()}) soccer enrollment has started!`
                 }
             },
             {
@@ -64,19 +64,19 @@ const generalEnrollmentNotification = async (db, needOverWrite = "false") => {
 };
 
 const responseSuccessEnroll = {
-    "text": `Congratulation! You have successfully enrolled in week ${currentWeek}'s (${thisFriday}) soccer game!`,
+    "text": `Congratulation! You have successfully enrolled in week ${currentWeek()}'s (${thisFriday()}) soccer game!`,
     "response_type": "ephemeral",
     "replace_original": false
 };
 
 const responseSuccessOrderTaxi = {
-    "text": `Taxi :taxi: is confirmed for week ${currentWeek}!`,
+    "text": `Taxi :taxi: is confirmed for week ${currentWeek()}!`,
     "response_type": "ephemeral",
     "replace_original": false
 };
 
 const responseEnrollmentClosed = {
-    "text": `Are you sure to close the enrollment for week ${currentWeek}'s (${thisFriday}) soccer game?`,
+    "text": `Are you sure to close the enrollment for week ${currentWeek()}'s (${thisFriday()}) soccer game?`,
     "attachments": [
         {
             "text": "Please confirm if you want to play or not",

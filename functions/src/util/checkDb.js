@@ -1,8 +1,8 @@
 const moment = require('moment');
-const currentWeekMongoSting = `${moment().year()}_${moment().week()}`;
+const currentWeekMongoSting = () => `${moment().year()}_${moment().week()}`;
 
 const getNumberOfEnrollment = async (db) => {
-    const snap = await db.collection(currentWeekMongoSting).where('play', '==', true).get();
+    const snap = await db.collection(currentWeekMongoSting()).where('play', '==', true).get();
     let numberOfEnrollment = 0;
     if (!snap.empty) {
         snap.forEach(() => {
@@ -10,7 +10,7 @@ const getNumberOfEnrollment = async (db) => {
         });
     }
 
-    const snapTaxi = await db.collection(currentWeekMongoSting).where('taxi', '==', true).get();
+    const snapTaxi = await db.collection(currentWeekMongoSting()).where('taxi', '==', true).get();
     let numberOfPeopleNeedTaxi = 0;
     if (!snapTaxi.empty) {
         snapTaxi.forEach(() => {
