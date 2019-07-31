@@ -75,62 +75,95 @@ const responseSuccessOrderTaxi = {
     "replace_original": false
 };
 
-const responseEnrollmentClosed = {
-    "text": `Are you sure to close the enrollment for week ${currentWeek()}'s (${thisFriday()}) soccer game?`,
-    "attachments": [
-        {
-            "text": "Please confirm if you want to play or not",
-            "fallback": "You are unable to choose a game",
-            "callback_id": "soccer",
-            "color": "#3AA3E3",
-            "attachment_type": "default",
-            "actions": [
-                {
-                    "name": "cancel_enrollment_confirm",
-                    "text": "Yes!",
-                    "type": "button",
-                    "style": "primary",
-                    "value": "cancel_confirm"
-                },
-                {
-                    "name": "cancel_enrollment_reject",
-                    "text": "No",
-                    "type": "button",
-                    "style": "danger",
-                    "value": "cancel_reject",
-                },
-            ]
-        },
-    ],
-    "response_type": "ephemeral",
-    "replace_original": false
-};
-
 const responseGetRoster = (result) => {
+    let finalBlock = {};
     const fields = [];
-    for (let i = 0; i < result.array2.length; i++) {
-        fields.push({
-            "type": "plain_text",
-            "text": result.array1[i],
-        });
-        fields.push({
-            "type": "plain_text",
-            "text": result.array2[i],
-        });
-    }
-    if (result.array1.length > result.array2.length) {
-        fields.push({
-            "type": "plain_text",
-            "text": result.array1[result.array1.length - 1],
-        });
-        fields.push({
-            "type": "plain_text",
-            "text": " ",
-        });
-    }
-    return {
-        "text": `Here is this week's roster:`,
-        "blocks": [
+    const fields1 = [];
+    const fields2 = [];
+    if (result.array1.length > 5) {
+        for (let i = 0; i < 5; i++) {
+            fields1.push({
+                "type": "plain_text",
+                "text": result.array1[i],
+            });
+            fields1.push({
+                "type": "plain_text",
+                "text": result.array2[i],
+            });
+        }
+        if (result.array2.length > 5) {
+            for (let i = 5; i < result.array2.length; i++) {
+                fields2.push({
+                    "type": "plain_text",
+                    "text": result.array1[i],
+                });
+                fields2.push({
+                    "type": "plain_text",
+                    "text": result.array2[i],
+                });
+            }
+        }
+
+        if (result.array1.length > result.array2.length) {
+            fields2.push({
+                "type": "plain_text",
+                "text": result.array1[result.array1.length - 1],
+            });
+            fields2.push({
+                "type": "plain_text",
+                "text": " ",
+            });
+        }
+
+        finalBlock = [
+            {
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": "Here is this week's roster:"
+                },
+                "fields": [
+                    {
+                        "type": "mrkdwn",
+                        "text": "*Team light*"
+                    },
+                    {
+                        "type": "mrkdwn",
+                        "text": "*Team dark*"
+                    },
+                ]
+            },
+            {
+                "type": "section",
+                "fields": fields1,
+            },
+            {
+                "type": "section",
+                "fields": fields2,
+            },
+        ];
+    } else {
+        for (let i = 0; i < result.array2.length; i++) {
+            fields.push({
+                "type": "plain_text",
+                "text": result.array1[i],
+            });
+            fields.push({
+                "type": "plain_text",
+                "text": result.array2[i],
+            });
+        }
+        if (result.array1.length > result.array2.length) {
+            fields.push({
+                "type": "plain_text",
+                "text": result.array1[result.array1.length - 1],
+            });
+            fields.push({
+                "type": "plain_text",
+                "text": " ",
+            });
+        }
+        finalBlock = [
             {
                 "type": "section",
                 "text": {
@@ -151,8 +184,12 @@ const responseGetRoster = (result) => {
             {
                 "type": "section",
                 "fields": fields,
-            }
-        ]
+            },
+        ];
+    }
+    return {
+        "text": `Here is this week's roster:`,
+        "blocks": finalBlock
     };
 };
 
@@ -160,6 +197,5 @@ module.exports = {
     generalEnrollmentNotification,
     responseSuccessEnroll,
     responseSuccessOrderTaxi,
-    responseEnrollmentClosed,
     responseGetRoster,
 };
